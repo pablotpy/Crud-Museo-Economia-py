@@ -1,68 +1,47 @@
 <form [formGroup]="attendanceForm" (ngSubmit)="onSubmit()" class="p-3 border rounded shadow-sm bg-light">
-  <h4 class="mb-3">{{ isEditMode ? 'Editar Registro de Asistencia' : 'Nuevo Registro de Asistencia' }}</h4>
+  <h4 class="mb-3">NUEVO REGISTRO DE ASISTENCIA</h4>
 
   <div class="mb-3">
-    <label for="ci_number" class="form-label">Nro. Cédula:</label>
+    <label for="ci_number" class="form-label">NRO CEDULA / DNI:</label>
     <input type="text" class="form-control" id="ci_number" formControlName="ci_number"
-           [class.is-invalid]="attendanceForm.get('ci_number')?.invalid && (attendanceForm.get('ci_number')?.dirty || attendanceForm.get('ci_number')?.touched)">
+           [class.is-invalid]="attendanceForm.get('ci_number')?.invalid && attendanceForm.get('ci_number')?.touched">
     <div *ngIf="isLoadingVisitor" class="d-flex align-items-center text-muted mt-1">
-      <div class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">Buscando...</span></div>
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
       Buscando visitante...
     </div>
-    <div *ngIf="attendanceForm.get('ci_number')?.invalid && (attendanceForm.get('ci_number')?.dirty || attendanceForm.get('ci_number')?.touched)" class="invalid-feedback">
-      <div *ngIf="attendanceForm.get('ci_number')?.errors?.['required']">CI es requerida.</div>
-    </div>
-    <div *ngIf="foundVisitor && !isLoadingVisitor" class="alert alert-info mt-2 p-2 small">
-      Visitante: {{ foundVisitor.first_name }} {{ foundVisitor.last_name }} ({{ foundVisitor.country }})
-    </div>
-    <div *ngIf="!foundVisitor && attendanceForm.get('ci_number')?.value && !isLoadingVisitor && !isEditMode" class="alert alert-secondary mt-2 p-2 small">
-      Se creará un nuevo visitante con esta CI.
+    <div *ngIf="attendanceForm.get('ci_number')?.invalid && attendanceForm.get('ci_number')?.touched" class="invalid-feedback">
+      CI es requerida.
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-6 mb-3">
-      <label for="first_name" class="form-label">Nombre:</label>
+      <label for="first_name" class="form-label">NOMBRE:</label>
       <input type="text" class="form-control" id="first_name" formControlName="first_name"
-             appRestrictInput [class.is-invalid]="attendanceForm.get('first_name')?.invalid && (attendanceForm.get('first_name')?.dirty || attendanceForm.get('first_name')?.touched)">
-      <div *ngIf="attendanceForm.get('first_name')?.invalid && (attendanceForm.get('first_name')?.dirty || attendanceForm.get('first_name')?.touched)" class="invalid-feedback">
-        <div *ngIf="attendanceForm.get('first_name')?.errors?.['required']">Nombre es requerido.</div>
-        <div *ngIf="attendanceForm.get('first_name')?.errors?.['pattern']">Nombre solo puede contener letras y espacios.</div>
-      </div>
+             appRestrictInput [class.is-invalid]="attendanceForm.get('first_name')?.invalid && attendanceForm.get('first_name')?.touched">
+      <div *ngIf="attendanceForm.get('first_name')?.errors?.['required']" class="invalid-feedback">Nombre es requerido.</div>
+      <div *ngIf="attendanceForm.get('first_name')?.errors?.['pattern']" class="invalid-feedback">Nombre solo puede contener letras.</div>
     </div>
     <div class="col-md-6 mb-3">
-      <label for="last_name" class="form-label">Apellido:</label>
+      <label for="last_name" class="form-label">APELLIDO:</label>
       <input type="text" class="form-control" id="last_name" formControlName="last_name"
-             appRestrictInput [class.is-invalid]="attendanceForm.get('last_name')?.invalid && (attendanceForm.get('last_name')?.dirty || attendanceForm.get('last_name')?.touched)">
-      <div *ngIf="attendanceForm.get('last_name')?.invalid && (attendanceForm.get('last_name')?.dirty || attendanceForm.get('last_name')?.touched)" class="invalid-feedback">
-        <div *ngIf="attendanceForm.get('last_name')?.errors?.['required']">Apellido es requerido.</div>
-        <div *ngIf="attendanceForm.get('last_name')?.errors?.['pattern']">Apellido solo puede contener letras y espacios.</div>
-      </div>
+             appRestrictInput [class.is-invalid]="attendanceForm.get('last_name')?.invalid && attendanceForm.get('last_name')?.touched">
+      <div *ngIf="attendanceForm.get('last_name')?.errors?.['required']" class="invalid-feedback">Apellido es requerido.</div>
+      <div *ngIf="attendanceForm.get('last_name')?.errors?.['pattern']" class="invalid-feedback">Apellido solo puede contener letras.</div>
     </div>
   </div>
 
   <div class="mb-3">
-    <label for="country" class="form-label">País:</label>
-    <div *ngIf="isLoadingCountries" class="d-flex align-items-center text-muted mt-1">
-        <div class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">Cargando...</span></div>
-        Cargando países...
-    </div>
-    <select *ngIf="!(isLoadingCountries)" class="form-select" id="country" formControlName="country"
-            [class.is-invalid]="attendanceForm.get('country')?.invalid && (attendanceForm.get('country')?.dirty || attendanceForm.get('country')?.touched)">
-      <option *ngFor="let countryName of countries$ | async" [value]="countryName">
-        {{ countryName }}
-      </option>
-      <option *ngIf="!(countries$ | async)?.length && !isLoadingCountries" value="Paraguay">Paraguay (Fallback)</option>
-    </select>
-    <div *ngIf="attendanceForm.get('country')?.invalid && (attendanceForm.get('country')?.dirty || attendanceForm.get('country')?.touched)" class="invalid-feedback">
-      <div *ngIf="attendanceForm.get('country')?.errors?.['required']">País es requerido.</div>
-    </div>
+    <label for="country" class="form-label">PAIS:</label>
+    <input type="text" class="form-control" id="country" formControlName="country"
+           [class.is-invalid]="attendanceForm.get('country')?.invalid && attendanceForm.get('country')?.touched">
+    <div *ngIf="attendanceForm.get('country')?.errors?.['required']" class="invalid-feedback">País es requerido.</div>
   </div>
 
   <hr class="my-4">
 
   <div class="mb-3">
-    <label for="visit_type" class="form-label">Tipo de Visita:</label>
+    <label for="visit_type" class="form-label">TIPO DE VISITA:</label>
     <select class="form-select" id="visit_type" formControlName="visit_type">
       <option value="General">General</option>
       <option value="Grupo Escolar">Grupo Escolar</option>
@@ -72,15 +51,15 @@
     </select>
   </div>
   <div class="mb-3">
-    <label for="notes" class="form-label">Notas:</label>
+    <label for="notes" class="form-label">NOTAS:</label>
     <textarea class="form-control" id="notes" formControlName="notes" rows="3"></textarea>
   </div>
 
   <div class="d-flex justify-content-end">
-    <button type="button" class="btn btn-outline-secondary me-2" (click)="onCancelClick()">Cancelar</button>
-    <button type="submit" class="btn btn-primary" [disabled]="attendanceForm.invalid || isLoadingVisitor || isLoadingCountries">
-      <span *ngIf="isLoadingVisitor || isLoadingCountries" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-      {{ isEditMode ? 'Actualizar' : 'Guardar Registro' }}
+    <button type="button" class="btn btn-outline-secondary me-2" (click)="onCancelClick()">CANCELAR</button>
+    <button type="submit" class="btn btn-primary" [disabled]="attendanceForm.invalid || isLoadingVisitor">
+      <span *ngIf="isLoadingVisitor" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      {{ foundVisitor ? 'REGISTRAR VISITANTE' : 'REGISTRAR VISITANTE' }}
     </button>
   </div>
 </form>

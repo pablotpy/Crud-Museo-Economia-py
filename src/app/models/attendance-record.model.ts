@@ -3,6 +3,7 @@ import { Visitor } from "./visitor.model";
 export interface AttendanceRecord {
     id?: number;
     visitor_id?: number;
+    visitor_details?: Visitor;
     visitor?: Visitor;
     ci_number?: string;
     first_name?: string;
@@ -16,3 +17,10 @@ export interface AttendanceRecord {
     created_at?: string; // O Date
     updated_at?: string; // O Date
   }
+
+  // NUEVA INTERFAZ: para los datos que ENVÍAS a la API al crear
+export interface CreateAttendancePayload {
+  visitor: number; // Al crear, solo envías el ID del visitante (un número)
+  visit_type?: string;
+  notes?: string;
+}

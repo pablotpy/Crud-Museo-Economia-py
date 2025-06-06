@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { switchMap, startWith, catchError, tap } from 'rxjs/operators';
-import { CommonModule } from '@angular/common'; // Para 'async' pipe y *ngIf
+import { CommonModule } from '@angular/common';
 import { AttendanceRecord } from '../../models/attendance-record.model';
-import { AttendanceService } from '../attendance.service';
+import { AttendanceRecordService } from '../attendance-record.service'; // Usamos el servicio correcto
 import { AttendanceFormComponent } from '../attendance-form/attendance-form.component';
 import { AttendanceListComponent } from '../attendance-list/attendance-list.component';
 
@@ -18,89 +18,62 @@ import { AttendanceListComponent } from '../attendance-list/attendance-list.comp
   templateUrl: './attendance-page.component.html',
   styleUrls: ['./attendance-page.component.scss']
 })
-export class AttendancePageComponent implements OnInit {
+export class AttendancePageComponent {
   attendanceRecords$: Observable<AttendanceRecord[]>;
   recordToEdit: AttendanceRecord | null = null;
   showForm = false;
-  isLoading = false; // Para feedback general en la página
+  isLoading = false;
   errorMessage: string | null = null;
 
   private refreshList$ = new Subject<void>();
-  isEditMode: boolean | undefined;
 
-  constructor(private attendanceService: AttendanceService) {
+  constructor(private attendanceRecordService: AttendanceRecordService) { // Inyectamos el servicio correcto
     this.attendanceRecords$ = this.refreshList$.pipe(
-      startWith(null), // Carga inicial
+      startWith(null),
       tap(() => {
         this.isLoading = true;
         this.errorMessage = null;
       }),
-      switchMap(() => this.attendanceService.getAttendances()),
+      // Llamamos al método correcto del servicio correcto
+      switchMap(() => this.attendanceRecordService.getAttendanceRecords()),
       tap(() => this.isLoading = false),
       catchError(err => {
         console.error('Error al cargar registros:', err);
-        this.errorMessage = 'No se pudieron cargar los registros. Intente nuevamente.';
+        this.errorMessage = 'No se pudieron cargar los registros.';
         this.isLoading = false;
-        return []; // Devuelve un array vacío en caso de error para que el pipe async no falle
+        return [];
       })
     );
   }
-
-  ngOnInit(): void {}
 
   loadRecords(): void {
     this.refreshList$.next();
   }
 
-  handleFormSubmitted(record: AttendanceRecord): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    const operation = record.id && this.isEditMode // Asegúrate de que isEditMode refleje la intención
-      ? this.attendanceService.updateAttendance(record.id, record)
-      : this.attendanceService.addAttendance(record);
-
-    operation.subscribe({
-      next: (response) => {
-        if (response) {
-           console.log(this.isEditMode ? 'Registro actualizado' : 'Registro agregado');
-           // Aquí podrías usar un toast de Bootstrap para notificar éxito
-        } else {
-            console.error(this.isEditMode ? 'Error al actualizar' : 'Error al agregar');
-            this.errorMessage = this.isEditMode ? 'Error al actualizar el registro.' : 'Error al agregar el registro.';
-        }
-        this.loadRecords(); // Refresca la lista
-        this.showForm = false;
-        this.recordToEdit = null;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error en la operación:', err);
-        this.errorMessage = 'Ocurrió un error al guardar los datos.';
-        this.isLoading = false;
-      }
-    });
+  /**
+   * El formulario ahora maneja su propio envío.
+   * Este método solo se llama cuando el formulario termina exitosamente.
+   */
+  handleFormSubmitted(): void {
+    alert('Operación realizada con éxito.'); // O una notificación toast
+    this.showForm = false;
+    this.recordToEdit = null;
+    this.loadRecords(); // Refresca la lista
   }
 
   handleEditRecord(record: AttendanceRecord): void {
     this.recordToEdit = { ...record };
-    this.isEditMode = true; // Establecer modo edición
     this.showForm = true;
-    this.errorMessage = null;
   }
 
   handleDeleteRecord(id: number): void {
+    if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) return;
+    
     this.isLoading = true;
-    this.errorMessage = null;
-    this.attendanceService.deleteAttendance(id).subscribe({
-      next: (response) => {
-        if (response !== null ) { // Asumiendo que el servicio devuelve algo o no devuelve null en error
-            console.log('Registro eliminado');
-        } else {
-            console.error('Error al eliminar');
-            this.errorMessage = 'Error al eliminar el registro.';
-        }
+    this.attendanceRecordService.deleteAttendance(id).subscribe({
+      next: () => {
+        alert('Registro eliminado con éxito.');
         this.loadRecords();
-        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error al eliminar:', err);
@@ -112,15 +85,11 @@ export class AttendancePageComponent implements OnInit {
 
   openNewRecordForm(): void {
     this.recordToEdit = null;
-    this.isEditMode = false; // Asegurar que no esté en modo edición
     this.showForm = true;
-    this.errorMessage = null;
   }
 
   handleCancelForm(): void {
     this.showForm = false;
     this.recordToEdit = null;
-    this.isEditMode = false;
-    this.errorMessage = null;
   }
 }

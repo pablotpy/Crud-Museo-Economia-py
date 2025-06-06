@@ -5,10 +5,7 @@ import { AttendanceRecord } from '../../models/attendance-record.model';
 @Component({
   selector: 'app-attendance-list',
   standalone: true,
-  imports: [
-    CommonModule, // Para *ngFor, *ngIf
-    // DatePipe no necesita importarse aquí si CommonModule ya lo provee, pero es bueno saberlo
-  ],
+  imports: [CommonModule],
   templateUrl: './attendance-list.component.html',
   styleUrls: ['./attendance-list.component.scss']
 })
@@ -24,7 +21,7 @@ export class AttendanceListComponent {
   }
 
   onDelete(id: number | undefined): void {
-    if (id !== undefined) { // Bootstrap modals serían mejor para confirmación
+    if (id !== undefined) { 
       if (confirm('¿Está seguro de que desea eliminar este registro?')) {
         this.deleteRecord.emit(id);
       }

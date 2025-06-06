@@ -1,8 +1,8 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Gestión de Asistencia del Museo</h2>
+      <h2>GESTION DE ASISTENCIA DEL MUSEO</h2>
       <button class="btn btn-primary" (click)="openNewRecordForm()" *ngIf="!showForm">
-        <i class="bi bi-plus-circle"></i> Nuevo Registro de Asistencia
+        <i class="bi bi-plus-circle"></i> NUEVO REGISTRO
       </button>
     </div>
   
@@ -13,7 +13,7 @@
     <div *ngIf="showForm" class="mb-4">
       <app-attendance-form
         [recordToEdit]="recordToEdit"
-        (formSubmitted)="handleFormSubmitted($event)"
+        (formSubmitted)="handleFormSubmitted()"
         (cancel)="handleCancelForm()">
       </app-attendance-form>
     </div>

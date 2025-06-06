@@ -10,4 +10,6 @@ export interface Visitor {
     additional_data?: any | null;
     created_at?: string; // O Date
     updated_at?: string; // O Date
+    notes?: string;
+    visit_type?: string;
   }

@@ -15,9 +15,9 @@
       <tbody>
         <tr *ngFor="let record of records; let i = index">
           <th scope="row">{{ i + 1 }}</th>
-          <td>{{ record.visitor?.ci_number || record.ci_number }}</td>
-          <td>{{ record.visitor?.first_name || record.first_name }} {{ record.visitor?.last_name || record.last_name }}</td>
-          <td>{{ record.visitor?.country || record.country }}</td>
+          <td>{{ record.visitor_details?.ci_number || 'N/A' }}</td>
+          <td>{{ record.visitor_details?.first_name }} {{ record.visitor_details?.last_name}}</td>
+          <td>{{ record.visitor_details?.country || record.country }}</td>
           <td>{{ record.entry_timestamp | date:'dd/MM/yyyy HH:mm' }}</td>
           <td>{{ record.visit_type }}</td>
           <td>{{ record.notes | slice:0:30 }}{{ (record.notes && record.notes.length > 30) ? '...' : '' }}</td>
