@@ -32,9 +32,15 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/@popperjs/core/dist/umd/popper.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -98,5 +104,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "631250de-7099-41d8-8676-ea530f82e072"
   }
 }

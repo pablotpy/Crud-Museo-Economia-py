@@ -1,0 +1,41 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>GESTION DE ASISTENCIA DEL MUSEO</h2>
+      <button class="btn btn-primary" (click)="openNewRecordForm()" *ngIf="!showForm">
+        <i class="bi bi-plus-circle"></i> NUEVO REGISTRO
+      </button>
+    </div>
+  
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  
+    <div *ngIf="showForm" class="mb-4">
+      <app-attendance-form
+        [recordToEdit]="recordToEdit"
+        (formSubmitted)="handleFormSubmitted()"
+        (cancel)="handleCancelForm()">
+      </app-attendance-form>
+    </div>
+  
+    <div *ngIf="isLoading && !showForm" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Cargando registros...</span>
+      </div>
+      <p class="mt-2">Cargando registros...</p>
+    </div>
+  
+  
+    <div *ngIf="!showForm">
+       <div class="d-flex justify-content-end mb-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="loadRecords()" [disabled]="isLoading">
+              <i class="bi bi-arrow-clockwise"></i> Refrescar Lista
+          </button>
+       </div>
+      <app-attendance-list
+        [records]="(attendanceRecords$ | async) || []"
+        (editRecord)="handleEditRecord($event)"
+        (deleteRecord)="handleDeleteRecord($event)">
+      </app-attendance-list>
+    </div>
+  </div>
