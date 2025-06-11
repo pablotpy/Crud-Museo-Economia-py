@@ -33,9 +33,17 @@
 
   <div class="mb-3">
     <label for="country" class="form-label">PAIS:</label>
-    <input type="text" class="form-control" id="country" formControlName="country"
-           [class.is-invalid]="attendanceForm.get('country')?.invalid && attendanceForm.get('country')?.touched">
-    <div *ngIf="attendanceForm.get('country')?.errors?.['required']" class="invalid-feedback">País es requerido.</div>
+    <ngx-select
+      id="country"
+      formControlName="country"
+      [items]="countries"
+      placeholder="Seleccione un país o escriba para buscar"
+      [allowClear]="true">
+    </ngx-select>
+    <div *ngIf="attendanceForm.get('country')?.invalid && attendanceForm.get('country')?.touched"
+         class="d-block invalid-feedback">
+         País es REQUERIDO.
+    </div>
   </div>
 
   <hr class="my-4">
@@ -43,11 +51,11 @@
   <div class="mb-3">
     <label for="visit_type" class="form-label">TIPO DE VISITA:</label>
     <select class="form-select" id="visit_type" formControlName="visit_type">
-      <option value="General">General</option>
-      <option value="Grupo Escolar">Grupo Escolar</option>
-      <option value="Evento Especial">Evento Especial</option>
-      <option value="Gratuito">Gratuito</option>
-      <option value="Pago">Pago</option>
+      <option value="General">GENERAL</option>
+      <option value="Grupo Escolar">GRUPO ESCOLAR</option>
+      <option value="Evento Especial">EVENTO ESPECIAL</option>
+      <option value="Gratuito">GRATUITO</option>
+      <option value="Pago">PAGO</option>
     </select>
   </div>
   <div class="mb-3">
@@ -59,7 +67,7 @@
     <button type="button" class="btn btn-outline-secondary me-2" (click)="onCancelClick()">CANCELAR</button>
     <button type="submit" class="btn btn-primary" [disabled]="attendanceForm.invalid || isLoadingVisitor">
       <span *ngIf="isLoadingVisitor" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-      {{ foundVisitor ? 'REGISTRAR VISITANTE' : 'REGISTRAR VISITANTE' }}
+      {{ foundVisitor ? 'REGISTRAR VISITA' : 'REGISTRAR VISITANTE' }}
     </button>
   </div>
 </form>

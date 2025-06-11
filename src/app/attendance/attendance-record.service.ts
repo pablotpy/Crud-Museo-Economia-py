@@ -6,7 +6,7 @@ import { AttendanceRecord, CreateAttendancePayload } from '../models/attendance-
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceRecordService {
-  private readonly apiUrl = 'http://127.0.0.1:8000/api/attendancerecords/';
+  private readonly apiUrl = 'http://192.168.142.61:8000/api/attendancerecords/';
   constructor(private http: HttpClient) { }
   
   getAttendanceRecords(): Observable<AttendanceRecord[]> {

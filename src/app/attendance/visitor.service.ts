@@ -4,9 +4,13 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Visitor } from '../models/visitor.model';
 
+export interface Country {
+  name: string;
+}
 @Injectable({ providedIn: 'root' })
 export class VisitorService {
-  private readonly apiUrl = 'http://127.0.0.1:8000/api/visitors/';
+  private readonly apiUrl = 'http://192.168.142.61:8000/api/visitors/';
+  private readonly apiUrlpais = 'http://192.168.142.61:8000/api/';
   constructor(private http: HttpClient) { }
 
   checkVisitorByCi(ci: string): Observable<Visitor[]> {
@@ -17,6 +21,10 @@ export class VisitorService {
 
   registerNewVisitor(visitorData: Visitor): Observable<any> {
     return this.http.post(this.apiUrl, visitorData).pipe(catchError(this.handleError<any>('registerNewVisitor', null)));
+  }
+
+  getCountries(): Observable<Country[]> {
+    return this.http.get<Country[]>(`${this.apiUrlpais}countries/`);
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

@@ -9,7 +9,7 @@ import { Visitor } from '../models/visitor.model';
   providedIn: 'root'
 })
 export class AttendanceService {
-  private readonly apiUrl = 'http://127.0.0.1:8000/api';
+  private readonly apiUrl = 'http://192.168.142.61:8000/api';
 
   constructor(private http: HttpClient) { }
 

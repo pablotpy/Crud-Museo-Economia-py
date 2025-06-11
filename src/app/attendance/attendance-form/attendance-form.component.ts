@@ -4,11 +4,10 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-
-// Asegúrate de importar todos los modelos y servicios necesarios
 import { VisitorService, Visitor } from '../visitor.service';
 import { AttendanceRecordService, CreateAttendancePayload } from '../attendance-record.service';
 import { RestrictInputDirective } from '../../directives/restrict-input.directive';
+import { NgxSelectModule } from 'ngx-select-ex';
 
 @Component({
   selector: 'app-attendance-form',
@@ -16,13 +15,14 @@ import { RestrictInputDirective } from '../../directives/restrict-input.directiv
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RestrictInputDirective
+    RestrictInputDirective,
+    NgxSelectModule
   ],
   templateUrl: './attendance-form.component.html',
   styleUrls: ['./attendance-form.component.scss']
 })
 export class AttendanceFormComponent implements OnInit {
-  @Input() recordToEdit: any | null = null; // Usamos 'any' por ahora para simplificar la lógica de edición
+  @Input() recordToEdit: any | null = null;
   @Output() formSubmitted = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -30,6 +30,7 @@ export class AttendanceFormComponent implements OnInit {
   foundVisitor: Visitor | null = null;
   isLoadingVisitor = false;
   isEditMode = false;
+  countries: string[] = []; // Propiedad para almacenar la lista de países
 
   private namePattern = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]*$/;
 
@@ -42,17 +43,30 @@ export class AttendanceFormComponent implements OnInit {
       ci_number: ['', Validators.required],
       first_name: ['', [Validators.required, Validators.pattern(this.namePattern)]],
       last_name: ['', [Validators.required, Validators.pattern(this.namePattern)]],
-      country: ['Paraguay', Validators.required],
-      visit_type: ['General', Validators.required],
+      country: ['PARAGUAY', Validators.required],
+      visit_type: ['GENERAL', Validators.required],
       notes: ['']
     });
   }
 
   ngOnInit(): void {
+    this.loadCountries();
+    
     if (this.recordToEdit) {
       this.isEditMode = true;
-      this.attendanceForm.patchValue(this.recordToEdit);
-      // Aquí podrías agregar lógica para deshabilitar campos en modo edición si es necesario
+      const formData = {
+        ci_number: this.recordToEdit.visitor_details?.ci_number,
+        first_name: this.recordToEdit.visitor_details?.first_name,
+        last_name: this.recordToEdit.visitor_details?.last_name,
+        country: this.recordToEdit.visitor_details?.country,
+        visit_type: this.recordToEdit.visit_type,
+        notes: this.recordToEdit.notes
+      };
+
+      this.attendanceForm.patchValue(formData);
+
+      // Deshabilitamos los campos del visitante, ya que en la edición de una asistencia,
+      // solo se deberían poder cambiar los datos de la asistencia misma.
       this.attendanceForm.get('ci_number')?.disable();
       this.attendanceForm.get('first_name')?.disable();
       this.attendanceForm.get('last_name')?.disable();
@@ -62,6 +76,15 @@ export class AttendanceFormComponent implements OnInit {
     }
   }
 
+  loadCountries(): void {
+    this.visitorService.getCountries().subscribe({
+      next: (data) => {
+        this.countries = data.map(country => country.name);
+      },
+      error: (err) => console.error('Error al cargar la lista de países', err)
+    });
+  }
+
   onCiNumberChanges(): void {
     this.attendanceForm.get('ci_number')?.valueChanges.pipe(
       debounceTime(500),
@@ -69,7 +92,7 @@ export class AttendanceFormComponent implements OnInit {
       tap(() => {
         this.isLoadingVisitor = true;
         this.foundVisitor = null;
-        this.attendanceForm.patchValue({ first_name: '', last_name: '' });
+        this.attendanceForm.patchValue({ first_name: '', last_name: '', country: 'PARAGUAY' });
         this.disableVisitorFields(false);
       }),
       switchMap(ci => {
@@ -83,7 +106,7 @@ export class AttendanceFormComponent implements OnInit {
         this.attendanceForm.patchValue({
           first_name: this.foundVisitor.first_name,
           last_name: this.foundVisitor.last_name,
-          country: this.foundVisitor.country || 'Paraguay'
+          country: this.foundVisitor.country || 'PARAGUAY'
         });
         this.disableVisitorFields(true);
       }
@@ -107,8 +130,7 @@ export class AttendanceFormComponent implements OnInit {
       this.onSubmitNewVisitor();
     }
   }
-  
-  // -- ESTE MÉTODO AHORA ESTÁ COMPLETO --
+
   onSubmitNewVisitor(): void {
     if (this.attendanceForm.invalid) {
       this.attendanceForm.markAllAsTouched();
@@ -116,7 +138,6 @@ export class AttendanceFormComponent implements OnInit {
     }
 
     const formValue = this.attendanceForm.getRawValue();
-    // La variable se declara y asigna aquí
     const newVisitorPayload: Visitor = {
       ci_number: formValue.ci_number,
       first_name: formValue.first_name.toUpperCase(),
@@ -140,18 +161,16 @@ export class AttendanceFormComponent implements OnInit {
     });
   }
 
-  // -- ESTE MÉTODO AHORA ESTÁ COMPLETO --
   onSubmitExistingVisitor(): void {
     if (!this.foundVisitor?.id) return;
-    
+
     const formValue = this.attendanceForm.getRawValue();
-    // La variable se declara y asigna aquí
     const newAttendancePayload: CreateAttendancePayload = {
       visitor: this.foundVisitor.id,
       visit_type: formValue.visit_type,
       notes: formValue.notes,
     };
-    
+
     this.isLoadingVisitor = true;
     this.attendanceRecordService.registerAttendanceForExistingVisitor(newAttendancePayload).subscribe({
       next: () => {
@@ -166,12 +185,11 @@ export class AttendanceFormComponent implements OnInit {
     });
   }
 
-  // -- ESTE MÉTODO AHORA ESTÁ COMPLETO --
   onSubmitUpdate(): void {
     if (this.attendanceForm.invalid || !this.recordToEdit?.id) return;
 
     const formValue = this.attendanceForm.getRawValue();
-    const updatePayload: Partial<any> = { // Usamos Partial<any> para flexibilidad
+    const updatePayload: Partial<any> = {
       visit_type: formValue.visit_type,
       notes: formValue.notes
     };
@@ -189,13 +207,13 @@ export class AttendanceFormComponent implements OnInit {
         }
     });
   }
-  
+
   resetForm(): void {
     this.attendanceForm.reset({
       ci_number: '',
       first_name: '',
       last_name: '',
-      country: 'Paraguay',
+      country: 'PARAGUAY',
       visit_type: 'General',
       notes: ''
     });
@@ -204,7 +222,7 @@ export class AttendanceFormComponent implements OnInit {
     this.isEditMode = false;
     this.recordToEdit = null;
     this.disableVisitorFields(false);
-    this.attendanceForm.get('ci_number')?.enable(); // Asegurarse de re-habilitar en reset
+    this.attendanceForm.get('ci_number')?.enable();
   }
 
   onCancelClick(): void {
