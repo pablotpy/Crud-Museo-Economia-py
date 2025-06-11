@@ -1,6 +1,8 @@
 # AbmMuseo
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.10.
+![image](https://github.com/user-attachments/assets/14674ed4-a20a-45bb-9440-259318a44969)
+![image](https://github.com/user-attachments/assets/655fe3d0-31d0-49c8-a768-5be5cb6900f7)
+
 
 ## Development server
 
