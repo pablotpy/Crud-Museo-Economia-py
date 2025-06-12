@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { ReportesComponent } from './reportes/reportes.component';
 
 export const routes: Routes = [
   {
@@ -6,6 +7,11 @@ export const routes: Routes = [
     redirectTo: 'asistencia', // Redirige a la página de asistencia por defecto
     pathMatch: 'full'
   },
+    { 
+    path: 'reportes', 
+    component: ReportesComponent 
+  },
+  
   {
     path: 'asistencia',
     // Carga perezosa del componente standalone de gestión de asistencia

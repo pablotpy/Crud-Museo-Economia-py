@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AttendanceRecord, CreateAttendancePayload } from '../models/attendance-record.model';
+import { AttendanceRecord, CreateAttendancePayload, PaginatedResponse } from '../models/attendance-record.model';
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceRecordService {
   private readonly apiUrl = 'http://192.168.142.61:8000/api/attendancerecords/';
   constructor(private http: HttpClient) { }
   
-  getAttendanceRecords(): Observable<AttendanceRecord[]> {
-    return this.http.get<AttendanceRecord[]>(this.apiUrl).pipe(catchError(this.handleError<AttendanceRecord[]>('getAttendanceRecords', [])));
+  getAttendanceRecords(page: number): Observable<PaginatedResponse<AttendanceRecord>> {
+  const params = new HttpParams().set('page', page.toString());
+  return this.http.get<PaginatedResponse<AttendanceRecord>>(this.apiUrl, { params })
+      .pipe(catchError(this.handleError<PaginatedResponse<AttendanceRecord>>('getAttendanceRecords', { count: 0, next: null, previous: null, results: [] })));
   }
 
   registerAttendanceForExistingVisitor(attendanceData: CreateAttendancePayload): Observable<AttendanceRecord | null> {

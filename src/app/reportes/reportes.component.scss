@@ -1,0 +1,18 @@
+h2 {
+  margin-top: 40px;
+}
+
+canvas {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+// Estilo para el nuevo contenedor
+.chart-container {
+  position: relative;
+  height: 40vh; // Altura del 40% del alto de la ventana
+  width: 80vw;  // Ancho del 80% del ancho de la ventana
+  margin: auto; // Centrar el contenedor
+}

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { switchMap, startWith, catchError, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { switchMap, tap, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { AttendanceRecord } from '../../models/attendance-record.model';
-import { AttendanceRecordService } from '../attendance-record.service'; // Usamos el servicio correcto
+import { AttendanceRecord, PaginatedResponse } from '../../models/attendance-record.model';
+import { AttendanceRecordService } from '../attendance-record.service';
 import { AttendanceFormComponent } from '../attendance-form/attendance-form.component';
 import { AttendanceListComponent } from '../attendance-list/attendance-list.component';
 
@@ -19,46 +19,45 @@ import { AttendanceListComponent } from '../attendance-list/attendance-list.comp
   styleUrls: ['./attendance-page.component.scss']
 })
 export class AttendancePageComponent {
-  attendanceRecords$: Observable<AttendanceRecord[]>;
+  paginatedData$: Observable<PaginatedResponse<AttendanceRecord>>;
+  private pageChanges$ = new BehaviorSubject<number>(1);
+
   recordToEdit: AttendanceRecord | null = null;
   showForm = false;
   isLoading = false;
   errorMessage: string | null = null;
 
-  private refreshList$ = new Subject<void>();
-
-  constructor(private attendanceRecordService: AttendanceRecordService) { // Inyectamos el servicio correcto
-    this.attendanceRecords$ = this.refreshList$.pipe(
-      startWith(null),
+  constructor(private attendanceRecordService: AttendanceRecordService) {
+    this.paginatedData$ = this.pageChanges$.pipe(
       tap(() => {
         this.isLoading = true;
         this.errorMessage = null;
       }),
-      // Llamamos al método correcto del servicio correcto
-      switchMap(() => this.attendanceRecordService.getAttendanceRecords()),
+      switchMap(page => this.attendanceRecordService.getAttendanceRecords(page)),
       tap(() => this.isLoading = false),
       catchError(err => {
         console.error('Error al cargar registros:', err);
         this.errorMessage = 'No se pudieron cargar los registros.';
         this.isLoading = false;
-        return [];
+        // El uso de 'of' aquí ahora es correcto porque está bien importado
+        return of({ count: 0, next: null, previous: null, results: [] });
       })
     );
   }
 
   loadRecords(): void {
-    this.refreshList$.next();
+    this.pageChanges$.next(1);
   }
 
-  /**
-   * El formulario ahora maneja su propio envío.
-   * Este método solo se llama cuando el formulario termina exitosamente.
-   */
+  onPageChange(page: number): void {
+    this.pageChanges$.next(page);
+  }
+
   handleFormSubmitted(): void {
-    alert('Operación realizada con éxito.'); // O una notificación toast
+    alert('Operación realizada con éxito.');
     this.showForm = false;
     this.recordToEdit = null;
-    this.loadRecords(); // Refresca la lista
+    this.loadRecords();
   }
 
   handleEditRecord(record: AttendanceRecord): void {
@@ -67,13 +66,17 @@ export class AttendancePageComponent {
   }
 
   handleDeleteRecord(id: number): void {
-    if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) return;
-    
+    if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+      return;
+    }
+
     this.isLoading = true;
+    this.errorMessage = null;
+
     this.attendanceRecordService.deleteAttendance(id).subscribe({
       next: () => {
         alert('Registro eliminado con éxito.');
-        this.loadRecords();
+        this.pageChanges$.next(this.pageChanges$.value);
       },
       error: (err) => {
         console.error('Error al eliminar:', err);
